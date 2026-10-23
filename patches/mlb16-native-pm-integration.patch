@@ -1,0 +1,11 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -299,3 +299,9 @@ if(WIN32)
+     )
+ endif()
++
++# MLB16 raw SPU PM integration (TASK-017.6)
++set(MLB16_PORT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../mlb16-port" CACHE PATH "Path to mlb16-port repository")
++if(EXISTS "${MLB16_PORT_DIR}/cmake/mlb16-pm-integration.cmake")
++    include("${MLB16_PORT_DIR}/cmake/mlb16-pm-integration.cmake")
++endif()
