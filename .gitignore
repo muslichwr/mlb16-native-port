@@ -28,3 +28,28 @@ __pycache__/
 .vs/
 .vscode/
 '@ | Set-Content .gitignore
+# MLB16 LOCAL OUTPUTS
+/game/
+/analysis/
+/logs/
+/tmp/
+/recompiled-bounded/
+/smoke-recompiled/
+/build-objects/
+/build-mlb16-native/
+/build-runtime-clang64/
+/ps3recomp-source/
+/ps3recomp-v0.17.0-win-x64/
+*.ELF
+*.elf
+*.BIN
+*.bin
+*.WAD
+*.wad
+*.sdat
+*.o
+*.obj
+*.exe
+*.dll
+*.lib
+*.a
