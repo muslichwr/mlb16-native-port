@@ -4,6 +4,7 @@
 if(NOT DEFINED MLB16_PORT_DIR)
     set(MLB16_PORT_DIR "${CMAKE_CURRENT_LIST_DIR}/.." CACHE PATH "Path to mlb16-port repository")
 endif()
+
 get_filename_component(MLB16_PORT_DIR "${MLB16_PORT_DIR}" ABSOLUTE)
 
 message(STATUS "MLB16 PM Integration: using ${MLB16_PORT_DIR}")
@@ -35,3 +36,36 @@ set_source_files_properties("${MLB16_PORT_DIR}/src/spu/image0077/spu_recomp.c" P
 target_link_options(${PROJECT_NAME} PRIVATE
     "-Wl,--wrap=main"
 )
+
+# TASK-018: original, opt-in observation glue; no generated PPU/SPU edits.
+option(MLB16_TASK018_DIAGNOSTIC "Trace DXTJob publication boundaries" OFF)
+if(MLB16_TASK018_DIAGNOSTIC)
+    target_sources(${PROJECT_NAME} PRIVATE "${MLB16_PORT_DIR}/src/dxtjob_publication_diagnostic.cpp")
+    foreach(symbol IN ITEMS
+        _Z13func_009FAAB4P11ppu_context
+        _Z13func_009F98B8P11ppu_context
+        _Z13func_009FA818P11ppu_context
+        _Z13func_009FA71CP11ppu_context
+        spu_wrch spu_run_with_halt)
+        target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--wrap=${symbol}")
+    endforeach()
+endif()
+
+# TASK-019: request eligibility only; TASK-018's descriptor/DMA probe stays off.
+option(MLB16_TASK019_DIAGNOSTIC "Trace DXTJob request eligibility" OFF)
+if(MLB16_TASK019_DIAGNOSTIC)
+    if(MLB16_TASK018_DIAGNOSTIC)
+        message(FATAL_ERROR "Select only one task diagnostic")
+    endif()
+    target_sources(${PROJECT_NAME} PRIVATE "${MLB16_PORT_DIR}/src/dxtjob_request_diagnostic.cpp")
+    foreach(symbol IN ITEMS
+        _Z13func_009DDA00P11ppu_context
+        _Z13func_0006EBACP11ppu_context
+        _Z13func_0006EBF0P11ppu_context
+        _Z13func_0006E988P11ppu_context
+        _Z13func_00A55540P11ppu_context
+        _Z13func_009FA818P11ppu_context
+        _Z13func_009FA42CP11ppu_context)
+        target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--wrap=${symbol}")
+    endforeach()
+endif()
