@@ -1,0 +1,83 @@
+{
+  "recorded_utc": "2026-10-23T14:13:05.206299+00:00",
+  "port": {
+    "head": "f80d45558f4783aaddc9de0e077802f57fedf7dd",
+    "branch": "main",
+    "remotes": [
+      "origin\thttps://github.com/muslichwr/mlb16-native-port.git (fetch)",
+      "origin\thttps://github.com/muslichwr/mlb16-native-port.git (push)"
+    ],
+    "status": [
+      "?? AGENTS.md",
+      "?? docs/PROJECT_STATE.md",
+      "?? docs/SPU_AUDIT_001.md",
+      "?? docs/TASK-001-SPU.md",
+      "?? docs/TASK-017-ALL-LANE-SPURS-TRACE.md",
+      "?? mlb16-port.code-workspace",
+      "?? patches/spu-interpreter-policy-exit.patch",
+      "?? patches/spurs-pm-pipe-all-lane-diagnostic.patch",
+      "?? src/spu_pm_startup.c",
+      "?? tests/test_spu_interrupt_roundtrip.c",
+      "?? tests/test_spurs_interpreter_exit.c"
+    ],
+    "index_sha256": "ae082db66431017af6fa829e5b2412910e02a3b685602ad707e01bf22e5636a7"
+  },
+  "toolkit": {
+    "head": "a6d76c895f77eb30b90a806c830544e61821b77f",
+    "branch": null,
+    "tag": "v0.17.0",
+    "remotes": [
+      "origin\thttps://github.com/sp00nznet/ps3recomp.git (fetch)",
+      "origin\thttps://github.com/sp00nznet/ps3recomp.git (push)"
+    ],
+    "shallow": true,
+    "index_sha256": "c7b2f38e5974db985a53dd7eca1f6629289f90112dd16b898bbd344ea77e5fff",
+    "files": {
+      "runtime/ppu/ppu_loader.cpp": {
+        "kind": "modified",
+        "size": 224540,
+        "sha256": "e5be09b1ce93fe3bbdfa812020956a732ca76668e917090d2c76b07cf289b9b3",
+        "mtime_ns": 1792750206292397800,
+        "base_sha256": "1e51319c67c15104b294fcf651d488e81ba92db03c5fe0a563c2393461df4eb0"
+      },
+      "runtime/spu/spu_interp.c": {
+        "kind": "modified",
+        "size": 28618,
+        "sha256": "2ea1ec746d94232a6a993b6cda5d8e93ec2f1d9115d4e1d83ebe003b84f74776",
+        "mtime_ns": 1792762564789770000,
+        "base_sha256": "db5811f7155eaa508315676b8ade7126b633f614a553308169a2e7aef33a4983"
+      },
+      "runtime/spu/spurs_policy.c": {
+        "kind": "modified",
+        "size": 35897,
+        "sha256": "03dceab3f667541bb9acc978fa97738a4da1e0778d7d539d2eb5298c9ef9e5b8",
+        "mtime_ns": 1792764045526174900,
+        "base_sha256": "fb5945c123348f858a72c13658532fae62523958247b92aaf7f76ac1b39d1028"
+      },
+      "runtime/ppu/ppu_loader.cpp.before-clang64": {
+        "kind": "untracked",
+        "size": 224437,
+        "sha256": "1e51319c67c15104b294fcf651d488e81ba92db03c5fe0a563c2393461df4eb0",
+        "mtime_ns": 1792750014614159000
+      }
+    },
+    "ignored_paths": [
+      "tools/__pycache__/nid_database.cpython-311.pyc",
+      "tools/__pycache__/spu_elf.cpython-311.pyc"
+    ]
+  },
+  "patches": {
+    "ppu-loader-clang64.patch": {
+      "size": 1179,
+      "sha256": "5f4de178da78736fd79e80cbf26af3797131d7a365eeb05a0e44b9cc59c02512"
+    },
+    "spu-interpreter-policy-exit.patch": {
+      "size": 989,
+      "sha256": "7921e47af7632b2ae73eb7e03ca690a9003320474bd1bb86f53e626192cfef7d"
+    },
+    "spurs-pm-pipe-all-lane-diagnostic.patch": {
+      "size": 4521,
+      "sha256": "fc27e459de346bcc8694d48621540ff03d6a0eea0fda6e3573ba29764c9086d6"
+    }
+  }
+}

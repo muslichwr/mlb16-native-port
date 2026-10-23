@@ -1,0 +1,4 @@
+# Keep recovery-patch hashes stable on Windows and Unix checkouts.
+patches/*.patch text eol=lf
+dependencies/*.json text eol=lf
+scripts/*.py text eol=lf

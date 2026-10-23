@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "state": "pinned",
+  "upstream": {
+    "url": "https://github.com/sp00nznet/ps3recomp.git",
+    "commit": "a6d76c895f77eb30b90a806c830544e61821b77f",
+    "tag": "v0.17.0",
+    "object_format": "sha1"
+  },
+  "fork": {
+    "url": "https://github.com/muslichwr/ps3recomp.git",
+    "commit": "bc5b3d30503169a025c88bd9e6195728fc8ad68d",
+    "branch": "mlb16-runtime"
+  },
+  "submodule": {
+    "path": "third_party/ps3recomp",
+    "recorded": true
+  },
+  "profiles": {
+    "persistent": [
+      "patches/ppu-loader-clang64.patch",
+      "patches/spu-interpreter-policy-exit.patch"
+    ],
+    "task017": [
+      "patches/ppu-loader-clang64.patch",
+      "patches/spu-interpreter-policy-exit.patch",
+      "patches/spurs-pm-pipe-all-lane-diagnostic.patch"
+    ]
+  },
+  "changes": [
+    {
+      "patch": "patches/ppu-loader-clang64.patch",
+      "patch_sha256": "5f4de178da78736fd79e80cbf26af3797131d7a365eeb05a0e44b9cc59c02512",
+      "target": "runtime/ppu/ppu_loader.cpp",
+      "classification": "persistent-platform-accommodation",
+      "profile": "persistent",
+      "base_sha256": "1e51319c67c15104b294fcf651d488e81ba92db03c5fe0a563c2393461df4eb0",
+      "patched_sha256": "e5be09b1ce93fe3bbdfa812020956a732ca76668e917090d2c76b07cf289b9b3"
+    },
+    {
+      "patch": "patches/spu-interpreter-policy-exit.patch",
+      "patch_sha256": "7921e47af7632b2ae73eb7e03ca690a9003320474bd1bb86f53e626192cfef7d",
+      "target": "runtime/spu/spu_interp.c",
+      "classification": "persistent-runtime-correction",
+      "profile": "persistent",
+      "base_sha256": "db5811f7155eaa508315676b8ade7126b633f614a553308169a2e7aef33a4983",
+      "patched_sha256": "2ea1ec746d94232a6a993b6cda5d8e93ec2f1d9115d4e1d83ebe003b84f74776"
+    },
+    {
+      "patch": "patches/spurs-pm-pipe-all-lane-diagnostic.patch",
+      "patch_sha256": "fc27e459de346bcc8694d48621540ff03d6a0eea0fda6e3573ba29764c9086d6",
+      "target": "runtime/spu/spurs_policy.c",
+      "classification": "temporary-diagnostic",
+      "profile": "task017",
+      "base_sha256": "fb5945c123348f858a72c13658532fae62523958247b92aaf7f76ac1b39d1028",
+      "patched_sha256": "03dceab3f667541bb9acc978fa97738a4da1e0778d7d539d2eb5298c9ef9e5b8"
+    }
+  ],
+  "redundant_untracked_backup": {
+    "path": "runtime/ppu/ppu_loader.cpp.before-clang64",
+    "reconstruct_from": "a6d76c895f77eb30b90a806c830544e61821b77f:runtime/ppu/ppu_loader.cpp",
+    "sha256": "1e51319c67c15104b294fcf651d488e81ba92db03c5fe0a563c2393461df4eb0"
+  },
+  "migration_note": "Persistent fixes are in the pinned fork commit. Base patches remain provenance; TASK-017 remains an optional diagnostic overlay."
+}

@@ -1,0 +1,91 @@
+--- a/runtime/spu/spurs_policy.c
++++ b/runtime/spu/spurs_policy.c
+@@ -365,11 +365,23 @@
+      * preferred hword, nextLoadJobNum@0x12C0, loadJobNum@0x12D0, runJobNum@
+      * 0x12E0, storeJobNum@0x12F0) before and after each PM run, plus the pc
+      * spu_run_with_halt halted at. Answers: does re-entry advance the pipeline
+-     * or reset/stall it? Only wid<=1 (jobmanager) traced, first 4000 runs. */
++     * or reset/stall it? TASK-017: first three invocations per workload,
++     * across all lanes. Reserve before dispatch; never change PM execution. */
+     static SPU_THREAD_LOCAL int s_pipe = -1;
+     if (s_pipe < 0) s_pipe = getenv("SPURS_PM_PIPE") ? 1 : 0;
+-    /* trace ALL workloads (the jobmanager is wid=12, not <=1); 4000-run cap bounds volume */
+-    int pipe_this = s_pipe && spu_num == 0;
++    static unsigned s_pipe_wid[16];
++    unsigned pipe_observation = 0;
++    if (s_pipe) {
++        unsigned n = __atomic_load_n(&s_pipe_wid[wid], __ATOMIC_RELAXED);
++        while (n < 3) {
++            if (__atomic_compare_exchange_n(&s_pipe_wid[wid], &n, n + 1, 0,
++                                            __ATOMIC_RELAXED, __ATOMIC_RELAXED)) {
++                pipe_observation = n + 1;
++                break;
++            }
++        }
++    }
++    int pipe_this = pipe_observation != 0;
+     uint32_t st_before = 0;
+     if (pipe_this) {
+         const uint8_t* L = ctx->ls;
+@@ -426,19 +438,22 @@
+     }
+ 
+     if (pipe_this) {
+-        /* PER-WID cap: a shared cap gets exhausted by idle wid=0/1 before the
+-         * jobmanager (wid=12) ever runs in a long/good run. Give each wid its
+-         * own budget so wid=12's pipeline is always captured. */
+-        static SPU_THREAD_LOCAL unsigned long s_pn_wid[16] = {0};
+-        unsigned long s_pn = ++s_pn_wid[wid & 15];
+-        if (s_pn < 300) {
++        {
++            /* Existing CRT locks (as in ppu_fs.cpp): both streams share the
++             * boot-log destination. Keep the whole observation coherent with
++             * concurrent printf and fprintf writers; no lock spans PM execution. */
++            #ifdef _WIN32
++            _lock_file(stdout); _lock_file(stderr);
++            #else
++            flockfile(stdout); flockfile(stderr);
++            #endif
+             const uint8_t* L = ctx->ls;
+             #define HW(o) ((L[(o)+2]<<8)|L[(o)+3])
+             #define W(o)  ((L[(o)]<<24)|(L[(o)+1]<<16)|(L[(o)+2]<<8)|L[(o)+3])
+-            fprintf(stderr, "[pm-pipe] wid=%u run#%lu first=%d halt_pc=0x%05X "
++            fprintf(stderr, "[pm-pipe] wid=%u spu=%u spurs=0x%08X run#%u first=%d halt_pc=0x%05X "
+                     "loadState=%u->%u nextLoad=0x%X loadJob=0x%X runJob=0x%X storeJob=0x%X "
+-                    "lastStore=0x%X\n",
+-                    wid, s_pn, first, ctx->pc & SPU_LS_MASK,
++                    "lastStore=0x%X",
++                    wid, spu_num, spurs_ea, pipe_observation, first, ctx->pc & SPU_LS_MASK,
+                     st_before, HW(0x12A0), W(0x12C0), W(0x12D0), W(0x12E0),
+                     W(0x12F0), W(0x1300));
+             /* WHY-NO-JOB1 probe: AllocateJob (via TryChangeFreeToLoadJob) stores
+@@ -451,7 +466,7 @@
+             {
+                 extern uint8_t* vm_base;
+                 uint32_t eaWL = W(0x13F0);
+-                fprintf(stderr, "         jobIndex=0x%X jobHeader=0x%08X(cmd=%u) eaWL=0x%08X\n",
++                fprintf(stderr, " jobIndex=0x%X jobHeader=0x%08X(cmd=%u) eaWL=0x%08X",
+                         W(0x1410), W(0x1420), HW(0x1420), eaWL);
+                 /* Dump the joblist header region eaWL+0x00..0x9F so we can see the
+                  * ticket/counter rows AND where the PPU actually wrote the job
+@@ -462,13 +477,19 @@
+                     for (uint32_t o = 0; o < 0xA0; o += 0x10) {
+                         const uint8_t* r = vm_base + eaWL + o;
+                         #define RW(i) ((r[i]<<24)|(r[i+1]<<16)|(r[i+2]<<8)|r[i+3])
+-                        fprintf(stderr, "         jl+%02X: %08X %08X %08X %08X\n",
++                        fprintf(stderr, " jl+%02X: %08X %08X %08X %08X",
+                                 o, RW(0), RW(4), RW(8), RW(12));
+                         #undef RW
+                     }
+                 }
+             }
++            fprintf(stderr, "\n");
+             fflush(stderr);
++            #ifdef _WIN32
++            _unlock_file(stderr); _unlock_file(stdout);
++            #else
++            funlockfile(stderr); funlockfile(stdout);
++            #endif
+             #undef HW
+             #undef W
+         }
