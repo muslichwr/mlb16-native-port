@@ -1,0 +1,30 @@
+@'
+# Game and console assets
+*.elf
+*.self
+EBOOT.BIN
+*.wad
+*.wad.hdr
+*.sdat
+*.edat
+*.pkg
+*.iso
+*.skx
+*.bik
+*.pup
+
+# Generated files and local analysis
+analysis/
+dumps/
+captures/
+logs/
+build/
+out/
+.venv/
+__pycache__/
+*.log
+
+# IDE
+.vs/
+.vscode/
+'@ | Set-Content .gitignore
