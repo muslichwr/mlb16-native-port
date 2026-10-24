@@ -8,19 +8,39 @@ Read `docs/PROJECT_STATE.md` and the currently assigned task document **before c
 
 ## Local workspace (Windows paths)
 
-| Location | Use | Default agent permission |
-| --- | --- | --- |
-| `F:\Games\MLB16PS3\mlb16-port` | This Git repository: original scripts, docs, patches | Edit only files within assigned task scope |
-| `F:\Games\MLB16PS3\ps3recomp-source` | ps3recomp source, tools and runtime (separate Git checkout) | Read only for TASK-001 |
-| `F:\Games\MLB16PS3\mlb16-native` | Native runner template and CMake project | Read only for TASK-001 |
-| `F:\Games\MLB16PS3\analysis\spu-images` | Five locally extracted SPU ELF images | Read only; never stage or copy into Git |
-| `F:\Games\MLB16PS3\game` | Locally owned game executable and assets | Read only; never stage or copy into Git |
-| `F:\Games\MLB16PS3\logs` | Local build/boot traces | Read only; summarize findings in docs, not full log dumps |
-| `F:\Games\MLB16PS3\recompiled-bounded` | Generated lifted PPU C++ | Read only; never stage or edit generated output |
-| `F:\Games\MLB16PS3\build-objects` | 30 prebuilt PPU objects | Do not modify |
-| `F:\Games\MLB16PS3\build-mlb16-native` | Native runner build output | Do not modify in TASK-001 |
+| Location | Classification | Purpose and policy | Default agent permission |
+| --- | --- | --- | --- |
+| `F:\Games\MLB16PS3\mlb16-port` | `CANONICAL_SOURCE` | Main Git repository: original scripts, docs, patches, tests | Edit only files within assigned task scope |
+| `F:\Games\MLB16PS3\mlb16-port\third_party\ps3recomp` | `CANONICAL_DEPENDENCY` | Authoritative ps3recomp submodule checkout (pinned fork). Changes require branch commit on fork and repin. | Read-only in regular tasks; changes require explicit authorization |
+| `F:\Games\MLB16PS3\build-mlb16-native-pinned` | `CANONICAL_BUILD` | Canonical native build root and experiment staging tree | Active build/link target; do not commit contents to Git |
+| `F:\Games\MLB16PS3\recompiled-bounded` | `GENERATED` | Generated lifted PPU C++ code (30 units + NID table) | Read-only; never edit or stage generated output |
+| `F:\Games\MLB16PS3\build-objects` | `GENERATED` | 30 prebuilt PPU object files (.o) reused by CMake | Read-only; do not modify or delete |
+| `F:\Games\MLB16PS3\game` | `IMMUTABLE_INPUT` | Decrypted game executable (EBOOT.ELF) and disc assets | Read-only; never stage, copy into Git, or modify |
+| `F:\Games\MLB16PS3\rpcs3emu` | `REFERENCE` | RPCS3 emulator and reference/oracle data | Read-only reference; never expose as writable native state |
+| `F:\Games\MLB16PS3\analysis` | `EXPERIMENT_OUTPUT` | Local analysis dumps and extracted SPU ELFs | Read-only; never stage or copy into Git |
+| `F:\Games\MLB16PS3\logs` | `EXPERIMENT_OUTPUT` | Local build and boot traces | Read-only; summarize findings in docs, not log dumps |
+| `F:\Games\MLB16PS3\tmp` | `SCRATCH` | Scratch and temporary experiment workspaces | Disposable scratch; never treat as source-of-truth |
+| `F:\Games\MLB16PS3\mlb16-native` | `REFERENCE` | Active runner and CMake project input. Durable runner integration lives in mlb16-port. | Read-only runner input; integrate via mlb16-port |
+| `F:\Games\MLB16PS3\ps3recomp-source` | `LEGACY_DO_NOT_USE` | Preserved legacy external ps3recomp checkout | Do not use for new builds, tests, or investigations |
+| `F:\Games\MLB16PS3\build-mlb16-native` | `LEGACY_DO_NOT_USE` | Preserved legacy rollback build tree | Frozen rollback baseline; do not rebuild or modify |
+| `F:\Games\MLB16PS3\build-runtime-clang64` | `LEGACY_DO_NOT_USE` | Historical standalone runtime build tree | Legacy only; do not use |
+| `F:\Games\MLB16PS3\smoke-recompiled` | `LEGACY_DO_NOT_USE` | Historical preliminary recompiled lift | Legacy only; do not use |
+| `F:\Games\MLB16PS3\ps3recomp-v0.17.0-win-x64` | `LEGACY_DO_NOT_USE` | Upstream binary release archive | Legacy only; do not use |
 
-The saved VS Code multi-root workspace is `F:\Games\MLB16PS3\mlb16-port\mlb16-port.code-workspace`; its folders are `.` and `..`. **VS Code folder visibility is not proof that a file belongs in this Git repository.** The active Git checkout for project commits is `mlb16-port`, not `ps3recomp-source`.
+The saved VS Code multi-root workspace is `F:\Games\MLB16PS3\mlb16-port\mlb16-port.code-workspace`; its folders are `.` and `..`. **VS Code folder visibility is not proof that a file belongs in this Git repository.** The active Git checkout for project commits is `mlb16-port`, not any external checkout.
+
+## Hard workspace rules
+
+1. `mlb16-port` is the single source-of-truth repository for this project.
+2. `third_party/ps3recomp` is the ONLY canonical ps3recomp dependency checkout. All builds, headers, and tests must resolve against it.
+3. `third_party/ps3recomp` policy: No ad-hoc detached-HEAD edits. Persistent ps3recomp changes must be committed to the `muslichwr/ps3recomp` fork on a named branch, verified there, and then `mlb16-port` must repin the submodule to that commit. Never create another independent ps3recomp source-of-truth.
+4. `mlb16-native` is an active runner and build input, but is not the durable source-of-truth for MLB16-specific changes; durable runner integration remains represented from `mlb16-port` (e.g. `cmake/mlb16-pm-integration.cmake`).
+5. `ps3recomp-source` is strictly `LEGACY_DO_NOT_USE`. It is preserved only as frozen rollback evidence; new tasks must never point compilers, scripts, or includes at it.
+6. `build-mlb16-native-pinned` is the ONLY canonical build directory. `build-mlb16-native` is frozen legacy rollback.
+7. `game` is strictly `IMMUTABLE_INPUT`. Never write to or mutate original game files.
+8. `rpcs3emu` is strictly `REFERENCE` oracle data. Never write to RPCS3 directories or use them as active native runtime write destinations.
+9. All runtime writes must be targeted to disposable experiment directories under `F:` (e.g. within `build-mlb16-native-pinned/<experiment>` or `tmp/<experiment>`), never against original game trees.
+10. No game files, `.WAD`, `.sdat`, extracted binaries, `.o` objects, `.exe` executables, or raw logs may ever be committed to Git.
 
 ## Non-negotiable constraints
 

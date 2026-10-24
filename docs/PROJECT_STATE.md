@@ -22,7 +22,7 @@ Status recorded: **2026-10-23**. Documentation review: **2026-10-23**, using loc
 | Generated PPU source | `recompiled-bounded`, 30 `ppu_recomp_*.cpp` files plus HLE NID table |
 | Native PPU objects | All 30 prebuilt `.o` objects compiled |
 | Runtime | ps3recomp runtime library compiled under CLANG64 |
-| Native link | `build-mlb16-native\MyGameRecomp.exe` exists, 247,803,904 bytes (approximately 236.3 MiB); `logs\mlb16-native-build-v4.log` ends at linking, without a captured shell exit code |
+| Native link | `build-mlb16-native\MyGameRecomp.exe` (historical known-good rollback, 247,803,904 bytes); `build-mlb16-native-pinned\MyGameRecomp.exe` is the canonical active target |
 | GPU boot | Boot log records GTX 1650 Ti and D3D12 resource/pipeline creation; window opening is a historical report |
 | VFS | System/game archives opened, including `MLBPS3_SYS.WAD`, `MLBPS3_ROM.WAD`, `MLBPS3_GD.WAD` |
 | Boot test | Previously reported black window and `timeout` exit **124 after 45 seconds**; duration/exit code are not captured in the inspected boot log/analysis. No fresh boot verification. A timeout alone does **not** prove a crash. |
@@ -62,12 +62,13 @@ Inventory verified with local file metadata: **5 images, 383,068 bytes**. A read
 
 ## Known local paths and artifacts
 
-- `ps3recomp-source\tools\extract_spu_images.py`: scans the decrypted PPU ELF for embedded SPU ELF images.
-- `ps3recomp-source\tools\extract_jobmods.py`: separate extraction path for WWS job modules contained in SDATA; do not assume those archives exist for this title.
-- `ps3recomp-source\tools\build_spu_workloads.py`: assists lifting/registering SPU images; inspect CLI and code before use.
+- `third_party/ps3recomp\tools\extract_spu_images.py`: scans the decrypted PPU ELF for embedded SPU ELF images (canonical submodule).
+- `third_party/ps3recomp\tools\extract_jobmods.py`: extraction path for WWS job modules contained in SDATA; do not assume those archives exist for this title.
+- `third_party/ps3recomp\tools\build_spu_workloads.py`: assists lifting/registering SPU images; inspect CLI and code before use.
 - `mlb16-native\main.cpp`: accepts PPU ELF path as first CLI argument and supports `PS3_VFS_ROOT`.
 - `logs\mlb16-boot-01.log`: first native boot log (local only).
 - `logs\mlb16-boot-analysis-01.txt`: derived boot analysis (local only).
+- Note on historical paths: `ps3recomp-source` and `build-mlb16-native` are legacy rollback artifacts; `third_party/ps3recomp` and `build-mlb16-native-pinned` are the active canonical paths (see `docs/WORKSPACE-BOUNDARIES.md`).
 
 Existing repository documentation issues outside this review's three-file edit scope: `README.md` still says environment preparation and contains literal PowerShell/Git command text; `.gitignore` also contains stray PowerShell here-string text. `docs/STATUS.md` has an older next milestone. Treat this file and TASK-001 as the current scope/status references; Git ignore patterns are not a substitute for checking every staged path.
 

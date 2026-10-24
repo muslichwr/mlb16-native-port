@@ -8,7 +8,7 @@
  * the lifted-function ABI; this does not test the lifter or a game PM.
  *
  * PowerShell build from this repository (outputs remain on F:):
- * $sdk = 'F:/Games/MLB16PS3/ps3recomp-source'
+ * $sdk = 'F:/Games/MLB16PS3/mlb16-port/third_party/ps3recomp'
  * $spu = "$sdk/runtime/spu"
  * $src = 'spu_channels.c','spu_drain.c','spu_lockstep.c','spu_coherency.c',
  *        'spu_workload.c','spurs_policy.c','spurs_job.c','spu_tsp_weak.c',
