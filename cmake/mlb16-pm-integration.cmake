@@ -81,3 +81,83 @@ if(MLB16_TASK020_DIAGNOSTIC)
         target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--wrap=${symbol}")
     endforeach()
 endif()
+
+# TASK-021B: one bounded validation observer, with original guest calls preserved.
+option(MLB16_TASK021B_DIAGNOSTIC "Observe guest WAD-length validation and error edge" OFF)
+if(MLB16_TASK021B_DIAGNOSTIC)
+    if(MLB16_TASK018_DIAGNOSTIC OR MLB16_TASK019_DIAGNOSTIC OR MLB16_TASK020_DIAGNOSTIC)
+        message(FATAL_ERROR "Select only one task diagnostic")
+    endif()
+    target_sources(${PROJECT_NAME} PRIVATE "${MLB16_PORT_DIR}/src/wad_validation_diagnostic.cpp")
+    foreach(symbol IN ITEMS
+        _Z13func_00016D54P11ppu_context
+        _Z13func_0007C174P11ppu_context
+        _Z13func_00076BACP11ppu_context
+        _Z13func_00F2610CP11ppu_context
+        open)
+        target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--wrap=${symbol}")
+    endforeach()
+endif()
+
+# TASK-022 reuses the validation observer with only startup/dispatch counters.
+option(MLB16_TASK022_DIAGNOSTIC "Compare protected alternate HDD validation and boot progress" OFF)
+if(MLB16_TASK022_DIAGNOSTIC)
+    if(MLB16_TASK018_DIAGNOSTIC OR MLB16_TASK019_DIAGNOSTIC OR MLB16_TASK020_DIAGNOSTIC OR MLB16_TASK021B_DIAGNOSTIC)
+        message(FATAL_ERROR "Select only one task diagnostic")
+    endif()
+    target_sources(${PROJECT_NAME} PRIVATE "${MLB16_PORT_DIR}/src/wad_validation_diagnostic.cpp")
+    set_source_files_properties("${MLB16_PORT_DIR}/src/wad_validation_diagnostic.cpp" PROPERTIES
+        COMPILE_DEFINITIONS MLB16_TASK022_DIAGNOSTIC=1)
+    foreach(symbol IN ITEMS
+        _Z13func_00016D54P11ppu_context
+        _Z13func_0007C174P11ppu_context
+        _Z13func_00F2610CP11ppu_context
+        _Z13func_00011CE8P11ppu_context
+        _Z13func_000136F8P11ppu_context
+        open)
+        target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--wrap=${symbol}")
+    endforeach()
+endif()
+
+option(MLB16_TASK022R_DIAGNOSTIC "Observe isolated writable validation and boot progress" OFF)
+if(MLB16_TASK022R_DIAGNOSTIC)
+    if(MLB16_TASK018_DIAGNOSTIC OR MLB16_TASK019_DIAGNOSTIC OR MLB16_TASK020_DIAGNOSTIC OR MLB16_TASK021B_DIAGNOSTIC OR MLB16_TASK022_DIAGNOSTIC)
+        message(FATAL_ERROR "Select only one task diagnostic")
+    endif()
+    target_sources(${PROJECT_NAME} PRIVATE "${MLB16_PORT_DIR}/src/wad_validation_diagnostic.cpp")
+    set_source_files_properties("${MLB16_PORT_DIR}/src/wad_validation_diagnostic.cpp" PROPERTIES
+        COMPILE_DEFINITIONS "MLB16_TASK022_DIAGNOSTIC=1;MLB16_TASK022R_DIAGNOSTIC=1")
+    foreach(symbol IN ITEMS
+        _Z13func_00016D54P11ppu_context _Z13func_0007C174P11ppu_context
+        _Z13func_00F2610CP11ppu_context _Z13func_00011CE8P11ppu_context
+        _Z13func_000136F8P11ppu_context _Z13func_000765E4P11ppu_context open)
+        target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--wrap=${symbol}")
+    endforeach()
+endif()
+
+option(MLB16_TASK023_DIAGNOSTIC "Observe prepare-flip import and synchronous callback returns" OFF)
+if(MLB16_TASK023_DIAGNOSTIC)
+    if(MLB16_TASK018_DIAGNOSTIC OR MLB16_TASK019_DIAGNOSTIC OR MLB16_TASK020_DIAGNOSTIC OR MLB16_TASK021B_DIAGNOSTIC OR MLB16_TASK022_DIAGNOSTIC OR MLB16_TASK022R_DIAGNOSTIC)
+        message(FATAL_ERROR "Select only one task diagnostic")
+    endif()
+    target_sources(${PROJECT_NAME} PRIVATE "${MLB16_PORT_DIR}/src/flip_boundary_diagnostic.cpp")
+    foreach(symbol IN ITEMS
+        _Z13func_00066530P11ppu_context _Z13func_00F25BCCP11ppu_context
+        _Z13func_00011CE8P11ppu_context _Z13func_000136F8P11ppu_context ppu_guest_call)
+        target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--wrap=${symbol}")
+    endforeach()
+endif()
+
+# TASK-024: dispatcher/caller and immediate continuation only.
+option(MLB16_TASK024_DIAGNOSTIC "Observe dispatcher progress and immediate caller continuation" OFF)
+if(MLB16_TASK024_DIAGNOSTIC)
+    if(MLB16_TASK018_DIAGNOSTIC OR MLB16_TASK019_DIAGNOSTIC OR MLB16_TASK020_DIAGNOSTIC OR MLB16_TASK021B_DIAGNOSTIC OR MLB16_TASK022_DIAGNOSTIC OR MLB16_TASK022R_DIAGNOSTIC OR MLB16_TASK023_DIAGNOSTIC)
+        message(FATAL_ERROR "Select only one task diagnostic")
+    endif()
+    target_sources(${PROJECT_NAME} PRIVATE "${MLB16_PORT_DIR}/src/dispatcher_progress_diagnostic.cpp")
+    foreach(symbol IN ITEMS
+        _Z13func_00011CE8P11ppu_context _Z13func_000136F8P11ppu_context
+        _Z13func_00014EB4P11ppu_context ps3_indirect_call)
+        target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--wrap=${symbol}")
+    endforeach()
+endif()
