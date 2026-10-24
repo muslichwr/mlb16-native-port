@@ -12,11 +12,12 @@ Read `docs/PROJECT_STATE.md` and the currently assigned task document **before c
 | --- | --- | --- | --- |
 | `F:\Games\MLB16PS3\mlb16-port` | `CANONICAL_SOURCE` | Main Git repository: original scripts, docs, patches, tests | Edit only files within assigned task scope |
 | `F:\Games\MLB16PS3\mlb16-port\third_party\ps3recomp` | `CANONICAL_DEPENDENCY` | Authoritative ps3recomp submodule checkout (pinned fork). Changes require branch commit on fork and repin. | Read-only in regular tasks; changes require explicit authorization |
-| `F:\Games\MLB16PS3\build-mlb16-native-pinned` | `CANONICAL_BUILD` | Canonical native build root and experiment staging tree | Active build/link target; do not commit contents to Git |
+| `F:\Games\MLB16PS3\build-mlb16-native-pinned` | `CANONICAL_BUILD` | Canonical native build root (BUILD ONLY). Completed experiments must not reside permanently here. | Active build/link target; do not commit contents to Git |
 | `F:\Games\MLB16PS3\recompiled-bounded` | `GENERATED` | Generated lifted PPU C++ code (30 units + NID table) | Read-only; never edit or stage generated output |
 | `F:\Games\MLB16PS3\build-objects` | `GENERATED` | 30 prebuilt PPU object files (.o) reused by CMake | Read-only; do not modify or delete |
 | `F:\Games\MLB16PS3\game` | `IMMUTABLE_INPUT` | Decrypted game executable (EBOOT.ELF) and disc assets | Read-only; never stage, copy into Git, or modify |
 | `F:\Games\MLB16PS3\rpcs3emu` | `REFERENCE` | RPCS3 emulator and reference/oracle data | Read-only reference; never expose as writable native state |
+| `F:\Games\MLB16PS3\experiments` | `SCRATCH` | Dedicated root for future disposable runtime experiment sandboxes | Disposable sandboxes; compacted after evidence audit |
 | `F:\Games\MLB16PS3\analysis` | `EXPERIMENT_OUTPUT` | Local analysis dumps and extracted SPU ELFs | Read-only; never stage or copy into Git |
 | `F:\Games\MLB16PS3\logs` | `EXPERIMENT_OUTPUT` | Local build and boot traces | Read-only; summarize findings in docs, not log dumps |
 | `F:\Games\MLB16PS3\tmp` | `SCRATCH` | Scratch and temporary experiment workspaces | Disposable scratch; never treat as source-of-truth |
@@ -36,11 +37,12 @@ The saved VS Code multi-root workspace is `F:\Games\MLB16PS3\mlb16-port\mlb16-po
 3. `third_party/ps3recomp` policy: No ad-hoc detached-HEAD edits. Persistent ps3recomp changes must be committed to the `muslichwr/ps3recomp` fork on a named branch, verified there, and then `mlb16-port` must repin the submodule to that commit. Never create another independent ps3recomp source-of-truth.
 4. `mlb16-native` is an active runner and build input, but is not the durable source-of-truth for MLB16-specific changes; durable runner integration remains represented from `mlb16-port` (e.g. `cmake/mlb16-pm-integration.cmake`).
 5. `ps3recomp-source` is strictly `LEGACY_DO_NOT_USE`. It is preserved only as frozen rollback evidence; new tasks must never point compilers, scripts, or includes at it.
-6. `build-mlb16-native-pinned` is the ONLY canonical build directory. `build-mlb16-native` is frozen legacy rollback.
-7. `game` is strictly `IMMUTABLE_INPUT`. Never write to or mutate original game files.
-8. `rpcs3emu` is strictly `REFERENCE` oracle data. Never write to RPCS3 directories or use them as active native runtime write destinations.
-9. All runtime writes must be targeted to disposable experiment directories under `F:` (e.g. within `build-mlb16-native-pinned/<experiment>` or `tmp/<experiment>`), never against original game trees.
-10. No game files, `.WAD`, `.sdat`, extracted binaries, `.o` objects, `.exe` executables, or raw logs may ever be committed to Git.
+6. `build-mlb16-native-pinned` is the ONLY canonical build directory (BUILD ONLY). Completed experiment sandboxes are not permanent source-of-truth and must not reside permanently in the build root.
+7. Future disposable runtime experiment sandboxes must use `F:\Games\MLB16PS3\experiments`. Only one active experiment needs full writable game copies at any time, and completed experiments must be compacted after an evidence-retention audit. Compact logs, JSON manifests, and witness files are durable evidence; bulk duplicated immutable game data is not.
+8. `game` is strictly `IMMUTABLE_INPUT`. Never write to or mutate original game files.
+9. `rpcs3emu` is strictly `REFERENCE` oracle data. Never write to RPCS3 directories or use them as active native runtime write destinations.
+10. All runtime writes must be targeted to disposable experiment directories under `F:`, never against original game trees.
+11. No game files, `.WAD`, `.sdat`, extracted binaries, `.o` objects, `.exe` executables, or raw logs may ever be committed to Git.
 
 ## Non-negotiable constraints
 
